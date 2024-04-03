@@ -60,10 +60,15 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('!gather'):
-        whitelist, removed = await gather_addresses(File_Channel)  # Update with correct channel ID
+ # Check for !gather_addresses first, because it's more specific
+    if message.content.startswith('!gather_addresses'):
+        whitelist, _ = await gather_addresses(File_Channel)  # Use the correct channel ID
+        await create_address_list_txt(whitelist)
+        await message.channel.send(file=discord.File('addresses.txt'))
+    elif message.content.startswith('!gather'):
+        whitelist, removed = await gather_addresses(File_Channel)  # Use the correct channel ID
         await message.channel.send("Whitelist:", file=discord.File('whitelist.json'))
         if removed['Removed']:
             await message.channel.send("Removed addresses due to duplicates from different users:", file=discord.File('removed.json'))
-
+            
 client.run(TOKEN)
